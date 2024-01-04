@@ -5,4 +5,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED YES)
 set(CMAKE_CXX_EXTENSIONS NO)
 
+include(GNUInstallDirs)
+
 add_subdirectory(thirdparty)
+add_subdirectory(src)
