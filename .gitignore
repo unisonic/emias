@@ -31,6 +31,9 @@
 *.out
 *.app
 
+# Bash
+*.sh
+
 [Bb][Uu][Ii][Ll][Dd]
 [Oo][Uu][Tt]
 [Dd][Ee][Bb][Uu][Gg]
