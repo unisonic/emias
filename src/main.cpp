@@ -1,4 +1,5 @@
 #include <emias/full_state.hpp>
+#include <emias/bot_instance.hpp>
 
 #include <iostream>
 
