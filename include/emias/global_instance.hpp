@@ -10,8 +10,10 @@ using TJson = nlohmann::json;
 
 namespace NEmias {
 
-    extern TgBot::Bot MainBot;
-    extern TJson FullState;
+    extern TgBot::Bot GMainBot;
+
+    extern TJson GChatState;
+    extern TJson GFullState;
 
 } // NEmias
 
