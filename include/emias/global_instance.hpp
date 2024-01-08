@@ -10,10 +10,20 @@ using TJson = nlohmann::json;
 
 namespace NEmias {
 
-    extern TgBot::Bot GMainBot;
+    enum class ERequestField { 
+        FIRST_NAME,
+        LAST_NAME,
+        SECOND_NAME,
+        SPECIALITY_ID,
+        BIRTHDATE,
+        OMS_ID,
+        START_DATE,
+        FINISH_DATE
+    };
 
     extern TJson GChatState;
     extern TJson GFullState;
+    extern TgBot::Bot GMainBot;
 
 } // NEmias
 

@@ -1,122 +1,37 @@
 #include <emias/global_instance.hpp>
 #include <iostream>
 
-namespace NEmias {
-
-    enum class RequestField { 
-        FIRST_NAME,
-        LAST_NAME,
-        SECOND_NAME,
-        SPECIALITY_ID,
-        BIRTHDATE,
-        OMS_ID,
-        START_DATE,
-        FINISH_DATE
-    };
-
-} // NEmias
-
-namespace 
 
 namespace {
+    
+    template <NEmias::ERequestField TField>
+    void AddRequestField(TgBot::Message::Ptr message) {
+        const std::string chatId = std::to_string(message->chat->id);
+        const std::string fieldValue = message->text.substr(message->text.find(' ') + 1);
+        NEmias::GChatState[chatId][std::to_string(static_cast<unsigned>(TField))] = fieldValue;
 
-    void HelpCommand(TgBot::Message::Ptr message) {
-        NEmias::GMainBot.getApi().sendMessage(
-            message->chat->id,
-            R"(
-                Бот дожидается заполнения необходимой информации о запросе.
-                Как только информация заполнена, запрос принимается в обработку
-                и с некоторой переодичностью отправляется на <a href="https://emias.info">emias</a>.
-
-                Список команд:
-                <b>/help</b> - вывести это сообщение.
-                
-            )",
-            true,
-            0,
-            nullptr,
-            "HTML"
-        );
-    }
-
-    void TrySaveRequest(const std::string chatId) {
         if (NEmias::GChatState[chatId].size() != 8u) {
             return;
         }
 
         NEmias::GFullState[chatId].push_back(std::move(NEmias::GChatState[chatId]));
         NEmias::GChatState.erase(chatId);
+
+        FileTools::write(NEmias::GFullState.dump(), std::filesystem::current_path() / "full_state.json");
     }
 
-    void AddFirstNameCommand(TgBot::Message::Ptr message) {
-        const std::string chatId = std::to_string(message->chat->id);
-        const std::string firstName = message->text.substr(13);
-        
-        NEmias::GChatState[chatId]["FirstName"] = firstName;
-        TrySaveRequest(chatId);
-    }
-
-    void AddLastNameCommand(TgBot::Message::Ptr message) {
-        const std::string chatId = std::to_string(message->chat->id);
-        const std::string lastName = message->text.substr(12);
-        
-        NEmias::GChatState[chatId]["LastName"] = lastName;
-        TrySaveRequest(chatId);
-    }
-
-    void AddSecondNameCommand(TgBot::Message::Ptr message) {
-        const std::string chatId = std::to_string(message->chat->id);
-        const std::string secondName = message->text.substr(14);
-        
-        NEmias::GChatState[chatId]["SecondName"] = secondName;
-        TrySaveRequest(chatId);
-    }
-
-    void AddBirthdateCommand(TgBot::Message::Ptr message) {
-        const std::string chatId = std::to_string(message->chat->id);
-        const std::string birthdate = message->text.substr(13);
-        
-        NEmias::GChatState[chatId]["Birthdate"] = birthdate;
-        TrySaveRequest(chatId);
-    }
-
-    void AddOmsIdCommand(TgBot::Message::Ptr message) {
-        const std::string chatId = std::to_string(message->chat->id);
-        const std::string omsId = message->text.substr(9);
-        
-        NEmias::GChatState[chatId]["OmsId"] = omsId;
-        TrySaveRequest(chatId);
-    }
-
-    void AddStartDateCommand(TgBot::Message::Ptr message) {
-        const std::string chatId = std::to_string(message->chat->id);
-        const std::string startDate = message->text.substr(13);
-        
-        NEmias::GChatState[chatId]["StartDate"] = startDate;
-        TrySaveRequest(chatId);
-    }
-
-    void AddFinishDateCommand(TgBot::Message::Ptr message) {
-        const std::string chatId = std::to_string(message->chat->id);
-        const std::string finishDate = message->text.substr(14);
-        
-        NEmias::GChatState[chatId]["FinishDate"] = finishDate;
-        TrySaveRequest(chatId);
-    }
-
-    void AddSpecialityCommand(TgBot::Message::Ptr message) {
-        const std::string chatId = std::to_string(message->chat->id);
-        const std::string speciality = message->text.substr(14);
-        
-        NEmias::GChatState[chatId]["FinishDate"] = finishDate;
-        TrySaveRequest(chatId);
-    }
-
-} // NEmias
-
+}
 
 int main() {
-    NEmias::GMainBot.getEvents().onCommand("help", NEmias::HelpCommand);
+    NEmias::GMainBot.getEvents().onCommand("AddFirstName", AddRequestField<NEmias::ERequestField::FIRST_NAME>);
+    NEmias::GMainBot.getEvents().onCommand("AddLastName", AddRequestField<NEmias::ERequestField::LAST_NAME>);
+    NEmias::GMainBot.getEvents().onCommand("AddSecondName", AddRequestField<NEmias::ERequestField::SECOND_NAME>);
+    NEmias::GMainBot.getEvents().onCommand("AddSpeciality", AddRequestField<NEmias::ERequestField::SPECIALITY_ID>);
+    NEmias::GMainBot.getEvents().onCommand("AddBirthdate", AddRequestField<NEmias::ERequestField::BIRTHDATE>);
+    NEmias::GMainBot.getEvents().onCommand("AddOmsId", AddRequestField<NEmias::ERequestField::OMS_ID>);
+    NEmias::GMainBot.getEvents().onCommand("AddStartDate", AddRequestField<NEmias::ERequestField::START_DATE>);
+    NEmias::GMainBot.getEvents().onCommand("AddFinishDate", AddRequestField<NEmias::ERequestField::FINISH_DATE>);
+
     try {
         printf("Bot username: %s\n", NEmias::GMainBot.getApi().getMe()->username.c_str());
         TgBot::TgLongPoll longPoll(NEmias::GMainBot);
