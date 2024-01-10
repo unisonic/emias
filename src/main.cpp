@@ -1,28 +1,51 @@
 #include <emias/global_instance.hpp>
 #include <iostream>
-
+#include <chrono>
 
 namespace {
     
+    void SaveRequest(std::string chatId) {
+        std::string requestId = std::to_string(
+            std::chrono::high_resolution_clock::now().time_since_epoch().count() % 1000'000'000);
+
+        NEmias::GFullState[chatId][requestId] = std::move(NEmias::GChatState[chatId]);
+        NEmias::GChatState.erase(chatId);
+
+        FileTools::write(NEmias::GFullState.dump(4), std::filesystem::current_path() / "full_state.json");
+    }
+
     template <NEmias::ERequestField TField>
     void AddRequestField(TgBot::Message::Ptr message) {
         const std::string chatId = std::to_string(message->chat->id);
         const std::string fieldValue = message->text.substr(message->text.find(' ') + 1);
         NEmias::GChatState[chatId][std::to_string(static_cast<unsigned>(TField))] = fieldValue;
 
-        if (NEmias::GChatState[chatId].size() != 8u) {
-            return;
+        if (NEmias::GChatState[chatId].size() == 8) {
+            SaveRequest(chatId);
         }
-
-        NEmias::GFullState[chatId].push_back(std::move(NEmias::GChatState[chatId]));
-        NEmias::GChatState.erase(chatId);
-
-        FileTools::write(NEmias::GFullState.dump(), std::filesystem::current_path() / "full_state.json");
     }
 
+    void DeleteFullState(TgBot::Message::Ptr message) {
+        NEmias::GFullState.erase(std::to_string(message->chat->id));
+        NEmias::GMainBot.getApi().sendMessage(message->chat->id, "Все запросы удалены");
+    }
+
+    void DeleteRequest(TgBot::Message::Ptr message) {
+        const std::string requestId = message->text.substr(message->text.find(' ') + 1);
+        NEmias::GFullState[std::to_string(message->chat->id)].erase(requestId);
+        NEmias::GMainBot.getApi().sendMessage(message->chat->id, "Удалён запрос " + requestId);
+    }
+
+    void ShowAvailableDoctors(TgBot::Message::Ptr message) {
+
+    }
 }
 
 int main() {
+    NEmias::GMainBot.getEvents().onCommand("AvailableDoctors", ShowAvailableDoctors);
+    NEmias::GMainBot.getEvents().onCommand("DeleteRequest", DeleteRequest);
+    NEmias::GMainBot.getEvents().onCommand("DeleteFullState", DeleteFullState);
+
     NEmias::GMainBot.getEvents().onCommand("AddFirstName", AddRequestField<NEmias::ERequestField::FIRST_NAME>);
     NEmias::GMainBot.getEvents().onCommand("AddLastName", AddRequestField<NEmias::ERequestField::LAST_NAME>);
     NEmias::GMainBot.getEvents().onCommand("AddSecondName", AddRequestField<NEmias::ERequestField::SECOND_NAME>);
