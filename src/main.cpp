@@ -28,16 +28,26 @@ namespace {
     void DeleteFullState(TgBot::Message::Ptr message) {
         NEmias::GFullState.erase(std::to_string(message->chat->id));
         NEmias::GMainBot.getApi().sendMessage(message->chat->id, "Все запросы удалены");
+
+        FileTools::write(NEmias::GFullState.dump(4), std::filesystem::current_path() / "full_state.json");
     }
 
     void DeleteRequest(TgBot::Message::Ptr message) {
         const std::string requestId = message->text.substr(message->text.find(' ') + 1);
         NEmias::GFullState[std::to_string(message->chat->id)].erase(requestId);
         NEmias::GMainBot.getApi().sendMessage(message->chat->id, "Удалён запрос " + requestId);
+
+        FileTools::write(NEmias::GFullState.dump(4), std::filesystem::current_path() / "full_state.json");
     }
 
     void ShowAvailableDoctors(TgBot::Message::Ptr message) {
+        const std::vector<std::string> params = StringTools::split(message->text, ' ');
 
+        TJson request = TJson::parse(R"({"id": "1","jsonrpc":"2.0","method":"getSpecialitiesInfo"})");
+        request["params"]["omsNumber"] = params[1];
+        request["params"]["birthDate"] = params[2];
+
+        NEmias::GMainBot.getApi().sendMessage(message->chat->id, request.dump(4));
     }
 }
 
