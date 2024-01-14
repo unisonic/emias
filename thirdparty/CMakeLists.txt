@@ -3,8 +3,8 @@ set(FETCHCONTENT_QUIET OFF)
 
 FetchContent_Declare (
     tgbot 
-    GIT_REPOSITORY https://github.com/reo7sp/tgbot-cpp.git
-    GIT_TAG        782596206764e663b9b45401b447871f21ce62b2 # 1.7.2
+    GIT_REPOSITORY https://github.com/unisonic/tgbot-cpp.git
+    GIT_TAG        73235ba1a4e1448423072affdc150e3a64066e99 # 1.7.3
 )
 if (NOT cpr_POPULATED)
     FetchContent_Populate(tgbot)
@@ -40,3 +40,4 @@ if (NOT nlohmannjson_POPULATED)
     option(JSON_MultipleHeaders "Use non-amalgamated version of the library." OFF)
     add_subdirectory(${nlohmannjson_SOURCE_DIR} ${nlohmannjson_BINARY_DIR} EXCLUDE_FROM_ALL)
 endif()
+
