@@ -1,10 +1,12 @@
 set(SRCS "main.cpp"
          "request.cpp"
          "global_instance.cpp"
+         "process_fullstate.cpp"
          "tools/cyrillic_unicode.cpp")
 
 set(HDRS "${CMAKE_SOURCE_DIR}/include/emias/request.hpp"
          "${CMAKE_SOURCE_DIR}/include/emias/global_instance.hpp"
+         "${CMAKE_SOURCE_DIR}/include/emias/process_fullstate.hpp"
          "${CMAKE_SOURCE_DIR}/include/emias/tools/cyrillic_unicode.hpp")
 
 add_executable(${PROJECT_NAME} ${SRCS} ${HDRS})

@@ -10,7 +10,7 @@ using TJson = nlohmann::json;
 
 namespace NEmias {
 
-    enum class ERequestField { 
+    enum ERequestField { 
         FIRST_NAME,
         LAST_NAME,
         SECOND_NAME,

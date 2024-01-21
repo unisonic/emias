@@ -1,3 +1,5 @@
+#include <emias/process_fullstate.hpp>
+
 #include <emias/global_instance.hpp>
 #include <emias/request.hpp>
 
@@ -13,7 +15,7 @@ namespace {
         output += "<b>Имя врача:</b> "s + NEmias::GFullState[chatId][requestId]["0"].template get<std::string>() + '\n';
         output += "<b>Фамилия врача:</b> "s + NEmias::GFullState[chatId][requestId]["1"].template get<std::string>() + '\n';
         output += "<b>Отчество врача:</b> "s + NEmias::GFullState[chatId][requestId]["2"].template get<std::string>() + '\n';
-        output += "<b>Специальность врача:</b> "s + NEmias::GFullState[chatId][requestId]["3"].template get<std::string>() + '\n';
+        output += "<b>Специальность врача:</b> "s + std::to_string(NEmias::GFullState[chatId][requestId]["3"].template get<TJson::number_unsigned_t>()) + '\n';
         output += "<b>Дата рождения пациента:</b> "s + NEmias::GFullState[chatId][requestId]["4"].template get<std::string>() + '\n';
         output += "<b>Полис ОМС пациента:</b> "s + NEmias::GFullState[chatId][requestId]["5"].template get<std::string>() + '\n';
         output += "<b>Начало приема:</b> "s + NEmias::GFullState[chatId][requestId]["6"].template get<std::string>() + '\n';
@@ -44,7 +46,11 @@ namespace {
     void AddRequestField(TgBot::Message::Ptr message) {
         const std::string chatId = std::to_string(message->chat->id);
         const std::string fieldValue = message->text.substr(message->text.find(' ') + 1);
-        NEmias::GChatState[chatId][std::to_string(static_cast<unsigned>(TField))] = fieldValue;
+        if (TField == NEmias::SPECIALITY_ID) {
+            NEmias::GChatState[chatId][NEmias::SPECIALITY_ID] = std::stoull(fieldValue);
+        } else {
+            NEmias::GChatState[chatId][std::to_string(TField)] = fieldValue;
+        }
 
         if (NEmias::GChatState[chatId].size() == 8) {
             SaveRequest(chatId);
@@ -107,6 +113,10 @@ int main() {
     for (const auto& update : updates) {
         maxUpdateId = std::max(maxUpdateId, update->updateId);
     }
+    std::cout << "Done\n";
+
+    NEmias::ProcessFullState();
+    return 0;
 
     try {
         printf("Bot username: %s\n", NEmias::GMainBot.getApi().getMe()->username.c_str());
