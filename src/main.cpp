@@ -3,6 +3,8 @@
 #include <emias/global_instance.hpp>
 #include <emias/request.hpp>
 
+#include <emias/tools/timer.hpp>
+
 #include <iostream>
 #include <chrono>
 
@@ -47,7 +49,7 @@ namespace {
         const std::string chatId = std::to_string(message->chat->id);
         const std::string fieldValue = message->text.substr(message->text.find(' ') + 1);
         if (TField == NEmias::SPECIALITY_ID) {
-            NEmias::GChatState[chatId][NEmias::SPECIALITY_ID] = std::stoull(fieldValue);
+            NEmias::GChatState[chatId][std::to_string(NEmias::SPECIALITY_ID)] = std::stoull(fieldValue);
         } else {
             NEmias::GChatState[chatId][std::to_string(TField)] = fieldValue;
         }
@@ -85,48 +87,59 @@ namespace {
             if (entry["isMultipleLpuSpeciality"].template get<bool>()) {
                 continue;
             }
-            userInfo += entry["name"].template get<std::string>() + " - " + entry["code"].template get<std::string>() + "\n";
+            userInfo += entry["name"].template get<std::string>() + " - <b>" + entry["code"].template get<std::string>() + "</b>\n";
         }
 
         NEmias::GMainBot.getApi().sendMessage(message->chat->id, userInfo, false, 0, nullptr, "HTML");
     }
+
+    void AssignCallbacks() {
+        NEmias::GMainBot.getEvents().onCommand("AvailableDoctors", ShowAvailableDoctors);
+
+        NEmias::GMainBot.getEvents().onCommand("ShowFullState", ShowFullState);
+
+        NEmias::GMainBot.getEvents().onCommand("DeleteRequest", DeleteRequest);
+        NEmias::GMainBot.getEvents().onCommand("DeleteFullState", DeleteFullState);
+
+        NEmias::GMainBot.getEvents().onCommand("AddFirstName", AddRequestField<NEmias::FIRST_NAME>);
+        NEmias::GMainBot.getEvents().onCommand("AddLastName", AddRequestField<NEmias::LAST_NAME>);
+        NEmias::GMainBot.getEvents().onCommand("AddSecondName", AddRequestField<NEmias::SECOND_NAME>);
+        NEmias::GMainBot.getEvents().onCommand("AddSpeciality", AddRequestField<NEmias::SPECIALITY_ID>);
+        NEmias::GMainBot.getEvents().onCommand("AddBirthdate", AddRequestField<NEmias::BIRTHDATE>);
+        NEmias::GMainBot.getEvents().onCommand("AddOmsId", AddRequestField<NEmias::OMS_ID>);
+        NEmias::GMainBot.getEvents().onCommand("AddStartDate", AddRequestField<NEmias::START_DATE>);
+        NEmias::GMainBot.getEvents().onCommand("AddFinishDate", AddRequestField<NEmias::FINISH_DATE>);
+    }
 }
 
 int main() {
-    NEmias::GMainBot.getEvents().onCommand("AvailableDoctors", ShowAvailableDoctors);
-    NEmias::GMainBot.getEvents().onCommand("ShowFullState", ShowFullState);
-
-    NEmias::GMainBot.getEvents().onCommand("DeleteRequest", DeleteRequest);
-    NEmias::GMainBot.getEvents().onCommand("DeleteFullState", DeleteFullState);
-
-    NEmias::GMainBot.getEvents().onCommand("AddFirstName", AddRequestField<NEmias::ERequestField::FIRST_NAME>);
-    NEmias::GMainBot.getEvents().onCommand("AddLastName", AddRequestField<NEmias::ERequestField::LAST_NAME>);
-    NEmias::GMainBot.getEvents().onCommand("AddSecondName", AddRequestField<NEmias::ERequestField::SECOND_NAME>);
-    NEmias::GMainBot.getEvents().onCommand("AddSpeciality", AddRequestField<NEmias::ERequestField::SPECIALITY_ID>);
-    NEmias::GMainBot.getEvents().onCommand("AddBirthdate", AddRequestField<NEmias::ERequestField::BIRTHDATE>);
-    NEmias::GMainBot.getEvents().onCommand("AddOmsId", AddRequestField<NEmias::ERequestField::OMS_ID>);
-    NEmias::GMainBot.getEvents().onCommand("AddStartDate", AddRequestField<NEmias::ERequestField::START_DATE>);
-    NEmias::GMainBot.getEvents().onCommand("AddFinishDate", AddRequestField<NEmias::ERequestField::FINISH_DATE>);
+    AssignCallbacks();
 
     std::int32_t maxUpdateId = 0;
-    std::vector<TgBot::Update::Ptr> updates = NEmias::GMainBot.getApi().getUpdates(0, 1000, 10, nullptr);
-    for (const auto& update : updates) {
-        maxUpdateId = std::max(maxUpdateId, update->updateId);
-    }
-    std::cout << "Done\n";
-
-    NEmias::ProcessFullState();
-    return 0;
-
     try {
-        printf("Bot username: %s\n", NEmias::GMainBot.getApi().getMe()->username.c_str());
-        TgBot::TgLongPoll longPoll(NEmias::GMainBot, maxUpdateId + 1);
-        while (true) {
-            printf("Long poll started\n");
-            longPoll.start();
+        std::vector<TgBot::Update::Ptr> updates = NEmias::GMainBot.getApi().getUpdates(0, 1000, 10, nullptr);
+        for (const auto& update : updates) {
+            maxUpdateId = std::max(maxUpdateId, update->updateId);
         }
     } catch (TgBot::TgException& e) {
-        printf("error: %s\n", e.what());
+        std::cout << "[ TgBot exception ]: Couldn't retrieve unconfirmed updates" << '\n' << e.what() << '\n';
+    }
+
+    try {
+        TgBot::TgLongPoll longPoll(NEmias::GMainBot, maxUpdateId + 1);
+        NEmias::NTools::TTimer timer(std::chrono::seconds(5));
+        while (true) {
+            std::cout << "Long poll started" << '\n';
+            longPoll.start();
+
+            if (timer.PeriodElapsed()) {
+                std::cout << "Processing full state" << '\n';
+                NEmias::ProcessFullState();
+                timer.Reset();
+            }
+        }
+    } catch (TgBot::TgException& e) {
+        std::cout << "[ TgBot exception ]" << '\n' << e.what() << '\n';
     }
     return 0;
 }
