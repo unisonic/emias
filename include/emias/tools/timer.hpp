@@ -1,4 +1,9 @@
+#ifndef EMIAS_TIMER_HPP
+#define EMIAS_TIMER_HPP
+
+
 #include <chrono>
+
 
 namespace NEmias::NTools {
 
@@ -25,3 +30,6 @@ namespace NEmias::NTools {
     };
 
 }  // NEmias::NTools
+
+
+#endif
