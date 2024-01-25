@@ -81,7 +81,7 @@ namespace {
                     request[std::to_string(NEmias::FIRST_NAME)].template get<std::string>(),
                     request[std::to_string(NEmias::LAST_NAME)].template get<std::string>(),
                     request[std::to_string(NEmias::SECOND_NAME)].template get<std::string>(),
-                    request[std::to_string(NEmias::OMS_ID)].template get<std::string>(),
+                    request[std::to_string(NEmias::OMS_NUMBER)].template get<std::string>(),
                     request[std::to_string(NEmias::BIRTHDATE)].template get<std::string>(),
                     request[std::to_string(NEmias::START_DATE)].template get<std::string>(),
                     request[std::to_string(NEmias::FINISH_DATE)].template get<std::string>(),

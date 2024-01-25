@@ -106,7 +106,7 @@ namespace {
         NEmias::GMainBot.getEvents().onCommand("AddSecondName", AddRequestField<NEmias::SECOND_NAME>);
         NEmias::GMainBot.getEvents().onCommand("AddSpeciality", AddRequestField<NEmias::SPECIALITY_ID>);
         NEmias::GMainBot.getEvents().onCommand("AddBirthdate", AddRequestField<NEmias::BIRTHDATE>);
-        NEmias::GMainBot.getEvents().onCommand("AddOmsId", AddRequestField<NEmias::OMS_ID>);
+        NEmias::GMainBot.getEvents().onCommand("AddOmsNumber", AddRequestField<NEmias::OMS_NUMBER>);
         NEmias::GMainBot.getEvents().onCommand("AddStartDate", AddRequestField<NEmias::START_DATE>);
         NEmias::GMainBot.getEvents().onCommand("AddFinishDate", AddRequestField<NEmias::FINISH_DATE>);
     }
@@ -121,6 +121,7 @@ int main() {
         for (const auto& update : updates) {
             maxUpdateId = std::max(maxUpdateId, update->updateId);
         }
+        std::cout << "Unconfirmed updates handled" << '\n';
     } catch (TgBot::TgException& e) {
         std::cout << "[ TgBot exception ]: Couldn't retrieve unconfirmed updates" << '\n' << e.what() << '\n';
     }

@@ -16,7 +16,7 @@ namespace NEmias {
         SECOND_NAME,
         SPECIALITY_ID,
         BIRTHDATE,
-        OMS_ID,
+        OMS_NUMBER,
         START_DATE,
         FINISH_DATE
     };
