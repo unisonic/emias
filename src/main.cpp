@@ -1,13 +1,13 @@
 #include <emias/process_fullstate.hpp>
+#include <emias/update_fullstate.hpp>
 
 #include <emias/global_instance.hpp>
 #include <emias/request.hpp>
 
 #include <emias/tools/timer.hpp>
 
-#include <iostream>
 #include <chrono>
-#include <array>
+#include <iostream>
 #include <boost/format.hpp>
 
 namespace {
@@ -139,7 +139,9 @@ int main() {
 
             if (timer.PeriodElapsed()) {
                 std::cout << "Processing full state" << '\n';
-                NEmias::ProcessFullState();
+                if (NEmias::ProcessFullState()) {
+                    NEmias::UpdateFullState();
+                }
                 timer.Reset();
             }
         }

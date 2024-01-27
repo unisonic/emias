@@ -1,8 +1,6 @@
 #include <emias/process_fullstate.hpp>
 #include <emias/request.hpp>
 
-#include <iostream>
-#include <array>
 #include <boost/format.hpp>
 
 namespace {
@@ -127,9 +125,13 @@ namespace {
 
 }
 
-void NEmias::ProcessFullState() {
+bool NEmias::ProcessFullState() {
     const auto confirmedRequests = ProcessRequests();
+
+    bool fullStateChanged = false;
     for (const auto& [chatId, requestId] : confirmedRequests) {
         NEmias::GFullState[chatId].erase(requestId);
+        fullStateChanged = true;
     }
+    return fullStateChanged;
 }

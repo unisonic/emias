@@ -7,7 +7,7 @@
 
 namespace NEmias {
 
-    void ProcessFullState();
+    bool ProcessFullState();
 
 } // NEmias
 
