@@ -1,4 +1,4 @@
-/*#include <emias/process_fullstate.hpp>
+#include <emias/process_fullstate.hpp>
 #include <emias/request.hpp>
 
 #include <iostream>
@@ -26,7 +26,7 @@ namespace {
 
     TJson::number_unsigned_t GetExistingAppointment(const TRequestData& requestData) {
         const TJson existingAppointments = NEmias::PostRequest(boost::str(boost::format(
-            R"({"id": "1", "jsonrpc": "2.0", "method": "getAppointmentReceptionsByPatient", "params":{"omsNumber":"%1%","birthDate":"%1%"}})")
+            R"({"id": "1", "jsonrpc": "2.0", "method": "getAppointmentReceptionsByPatient", "params":{"omsNumber":"%1%","birthDate":"%2%"}})")
             % requestData.omsNumber % requestData.birthDate));
 
         TJson::number_unsigned_t appointmentId = 0;
@@ -43,18 +43,22 @@ namespace {
     bool InspectAvailableResource(
             const TRequestData& requestData,
             const TJson::number_unsigned_t appointmentId,
+            const TJson::number_unsigned_t complexResourceId,
             const TJson::number_unsigned_t availableResourceId)
     {
         
-        TJson requestAvailableResource = TJson::parse(R"({"id": "1", "jsonrpc": "2.0", "method": "getAvailableResourceScheduleInfo"})");
-        requestAvailableResource["params"]["omsNumber"] = requestData.omsNumber;
-        requestAvailableResource["params"]["birthDate"] = requestData.birthDate;
-        requestAvailableResource["params"]["specialityId"] = requestData.specialityId;
-        requestAvailableResource["params"]["availableResourceId"] = availableResourceId; 
-        if (appointmentId != 0) {
-            requestAvailableResource["params"]["appointmentId"] = appointmentId;
+        TJson availableResource = TJson::object();
+        if (appointmentId == 0) {
+            availableResource = NEmias::PostRequest(boost::str(boost::format(
+                R"({"id": "1", "jsonrpc": "2.0", "method": "getAvailableResourceScheduleInfo",
+                    "params": {"omsNumber":"%1%", "birthDate": "%2%", "specialityId": %3%, "availableResourceId": %4%, "complexResourceId": %5%}})")
+                % requestData.omsNumber % requestData.birthDate % requestData.specialityId % availableResourceId % complexResourceId));
+        } else {
+            availableResource = NEmias::PostRequest(boost::str(boost::format(
+                R"({"id": "1", "jsonrpc": "2.0", "method": "getAvailableResourceScheduleInfo",
+                    "params": {"omsNumber":"%1%", "birthDate": "%2%", "specialityId": %3%, "availableResourceId": %4%, "complexResourceId": %5%, "appointmentId": %6%}})")
+                % requestData.omsNumber % requestData.birthDate % requestData.specialityId % availableResourceId % complexResourceId % appointmentId));
         }
-        TJson availableResource = NEmias::PostRequest(std::move(requestAvailableResource));
 
         if (availableResource["result"].empty()) {
             return false;
@@ -91,14 +95,16 @@ namespace {
                 };
 
                 const auto appointmentId = GetExistingAppointment(requestData);
-                TJson requestDoctorsInfo = TJson::parse(R"({"id": "1", "jsonrpc": "2.0", "method": "getDoctorsInfo"})");
-                requestDoctorsInfo["params"]["omsNumber"] = requestData.omsNumber; 
-                requestDoctorsInfo["params"]["birthDate"] = requestData.birthDate;
-                requestDoctorsInfo["params"]["specialityId"] = requestData.specialityId;
-                if (appointmentId != 0) {
-                    requestDoctorsInfo["params"]["appointmentId"] = appointmentId;
+                TJson doctorsInfo = TJson::object();
+                if (appointmentId == 0) {
+                    doctorsInfo = NEmias::PostRequest(boost::str(boost::format(
+                        R"({"id": "1", "jsonrpc": "2.0", "method": "getDoctorsInfo", "params": {"omsNumber":"%1%", "birthDate": "%2%", "specialityId": %3%}})")
+                        % requestData.omsNumber % requestData.birthDate % requestData.specialityId));
+                } else {
+                    doctorsInfo = NEmias::PostRequest(boost::str(boost::format(
+                        R"({"id": "1", "jsonrpc": "2.0", "method": "getDoctorsInfo", "params": {"omsNumber":"%1%", "birthDate": "%2%", "specialityId": %3%, "appointmentId": %4%}})")
+                        % requestData.omsNumber % requestData.birthDate % requestData.specialityId % appointmentId));
                 }
-                TJson doctorsInfo = NEmias::PostRequest(std::move(requestDoctorsInfo)); 
 
                 for (const auto& item : doctorsInfo["result"]) {
                     if (item["mainDoctor"]["firstName"].template get<std::string>() != requestData.firstName
@@ -107,8 +113,10 @@ namespace {
                         continue;
                     }
 
-                    if (InspectAvailableResource(requestData, appointmentId, item["id"].template get<TJson::number_unsigned_t>())) {
-                        confirmedRequests.emplace_back(chatId, requestId);
+                    for (const auto& complexResource : item["complexResource"]) {
+                        if (InspectAvailableResource(requestData, appointmentId, complexResource["id"].template get<TJson::number_unsigned_t>(), item["id"].template get<TJson::number_unsigned_t>())) {
+                            confirmedRequests.emplace_back(chatId, requestId);
+                        }
                     }
                 }
             }
@@ -124,4 +132,4 @@ void NEmias::ProcessFullState() {
     for (const auto& [chatId, requestId] : confirmedRequests) {
         NEmias::GFullState[chatId].erase(requestId);
     }
-}*/
+}

@@ -84,26 +84,15 @@ namespace {
             R"({"id":"1","jsonrpc":"2.0","method":"getSpecialitiesInfo","params":{"omsNumber":"%1%","birthDate":"%2%"}})")
             % std::move(params[1]) % std::move(params[2])));
                 
-        std::cout << "pizdec\n";
-        std::string userInfo = boost::str(boost::format("<code>Врач %|62T.| Код</code>\n\n"));
+        std::string userInfo = "<code>Врач -> код\n\n";
         for (const auto& entry : response["result"]) {
             if (entry["isMultipleLpuSpeciality"].template get<bool>()) {
                 continue;
             }
 
-            std::string name = entry["name"].template get<std::string>();
-            std::string code = entry["code"].template get<std::string>();
-
-            std::size_t cntCyrillic = name.size();
-            for (const auto c : name) {
-                if (c == '.' || c == '-' || c == ' ' || c == '/') {
-                    --cntCyrillic;
-                }
-            }
-            std::string format = "<code>%1% %|"s + std::to_string(60 + cntCyrillic / 2 - code.size() + 1) + "T.| %2%</code>\n";
-
-            userInfo += boost::str(boost::format(format) % name % code);
+            userInfo += entry["name"].template get<std::string>() + '\n' + "\t -> " + entry["code"].template get<std::string>() + '\n';
         }
+        userInfo += "</code>";
 
         NEmias::GMainBot.getApi().sendMessage(message->chat->id, userInfo, false, 0, nullptr, "HTML");
     }
@@ -143,12 +132,11 @@ int main() {
 
     try {
         TgBot::TgLongPoll longPoll(NEmias::GMainBot, maxUpdateId + 1);
-        NEmias::NTools::TTimer timer(std::chrono::seconds(5));
+        NEmias::NTools::TTimer timer(std::chrono::seconds(300));
         while (true) {
             std::cout << "Long poll started" << '\n';
             longPoll.start();
 
-            continue;
             if (timer.PeriodElapsed()) {
                 std::cout << "Processing full state" << '\n';
                 NEmias::ProcessFullState();
