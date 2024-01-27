@@ -5,10 +5,12 @@
 #include <nlohmann/json.hpp>
 using TJson = nlohmann::json;
 
+#include <string>
+
 
 namespace NEmias {
 
-    TJson PostRequest(TJson requestBody);
+    TJson PostRequest(const std::string& requestBody);
 
 } // NEmias
 

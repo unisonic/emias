@@ -1,7 +1,9 @@
-#include <emias/process_fullstate.hpp>
+/*#include <emias/process_fullstate.hpp>
 #include <emias/request.hpp>
 
 #include <iostream>
+#include <array>
+#include <boost/format.hpp>
 
 namespace {
 
@@ -23,10 +25,9 @@ namespace {
     };
 
     TJson::number_unsigned_t GetExistingAppointment(const TRequestData& requestData) {
-        auto requestAppointments = TJson::parse(R"({"id": "1", "jsonrpc": "2.0", "method": "getAppointmentReceptionsByPatient"})");
-        requestAppointments["params"]["omsNumber"] = requestData.omsNumber; 
-        requestAppointments["params"]["birthDate"] = requestData.birthDate;
-        const auto existingAppointments = NEmias::PostRequest(std::move(requestAppointments));
+        const TJson existingAppointments = NEmias::PostRequest(boost::str(boost::format(
+            R"({"id": "1", "jsonrpc": "2.0", "method": "getAppointmentReceptionsByPatient", "params":{"omsNumber":"%1%","birthDate":"%1%"}})")
+            % requestData.omsNumber % requestData.birthDate));
 
         TJson::number_unsigned_t appointmentId = 0;
         for (const auto& appointment : existingAppointments["result"]) {
@@ -44,6 +45,7 @@ namespace {
             const TJson::number_unsigned_t appointmentId,
             const TJson::number_unsigned_t availableResourceId)
     {
+        
         TJson requestAvailableResource = TJson::parse(R"({"id": "1", "jsonrpc": "2.0", "method": "getAvailableResourceScheduleInfo"})");
         requestAvailableResource["params"]["omsNumber"] = requestData.omsNumber;
         requestAvailableResource["params"]["birthDate"] = requestData.birthDate;
@@ -122,4 +124,4 @@ void NEmias::ProcessFullState() {
     for (const auto& [chatId, requestId] : confirmedRequests) {
         NEmias::GFullState[chatId].erase(requestId);
     }
-}
+}*/

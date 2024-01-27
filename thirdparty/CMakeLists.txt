@@ -1,6 +1,9 @@
 include(FetchContent)
 set(FETCHCONTENT_QUIET OFF)
 
+set(Boost_USE_STATIC_RUNTIME ON)
+find_package(Boost 1.84 REQUIRED)
+
 FetchContent_Declare (
     tgbot 
     GIT_REPOSITORY https://github.com/unisonic/tgbot-cpp.git
