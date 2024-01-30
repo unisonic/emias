@@ -1,3 +1,5 @@
+/** @file */
+
 #include <emias/process_fullstate.hpp>
 #include <emias/request.hpp>
 
@@ -5,6 +7,9 @@
 
 namespace {
 
+    /**
+     * Struct for convenient addressing request fields
+     */
     struct TRequestData {
         std::string chatId;
         std::string requestId;
@@ -22,6 +27,11 @@ namespace {
         TJson::number_unsigned_t specialityId;
     };
 
+    /**
+     * \brief Function gets existing appointments for person
+     * @param requestData Fields of the requests
+     * @return Id of the existing appointment or zero otherwise
+     */
     TJson::number_unsigned_t GetExistingAppointment(const TRequestData& requestData) {
         const TJson existingAppointments = NEmias::PostRequest(boost::str(boost::format(
             R"({"id": "1", "jsonrpc": "2.0", "method": "getAppointmentReceptionsByPatient", "params":{"omsNumber":"%1%","birthDate":"%2%"}})")
@@ -38,6 +48,14 @@ namespace {
         return appointmentId;
     }
 
+    /**
+     * \brief Function inspects available resource from https://emias.info 
+     * @param requestData Fields of the requests
+     * @param appointmentId Id of the appointment if exists or zero otherwise
+     * @param complexResourceId Id of the complex resource 
+     * @param availableResourceId Id of the available resource 
+     * @return Id of the existing appointment or zero otherwise
+     */
     bool InspectAvailableResource(
             const TRequestData& requestData,
             const TJson::number_unsigned_t appointmentId,
@@ -74,6 +92,10 @@ namespace {
         return appointmentFound;
     }
 
+    /**
+     * \brief Function processes requests one by one from every chat
+     * @return Vector of pairs with confirmed requestId and corresponding chatId
+     */
     std::vector<std::pair<std::string, std::string>> ProcessRequests() {
         std::vector<std::pair<std::string, std::string>> confirmedRequests;
 

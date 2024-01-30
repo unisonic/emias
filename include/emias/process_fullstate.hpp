@@ -1,3 +1,5 @@
+/** @file */
+
 #ifndef EMIAS_PROCESS_FULLSTATE_HPP
 #define EMIAS_PROCESS_FULLSTATE_HPP
 
@@ -7,6 +9,10 @@
 
 namespace NEmias {
 
+    /**
+     * \brief Function periodically processing requests from full state
+     * @return true if full state changed after processing
+     */
     bool ProcessFullState();
 
 } // NEmias

@@ -9,3 +9,7 @@ include(GNUInstallDirs)
 
 add_subdirectory(thirdparty)
 add_subdirectory(src)
+
+if (EMIAS_BUILD_DOCS)
+    add_subdirectory(docs)
+endif()

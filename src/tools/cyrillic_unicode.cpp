@@ -1,3 +1,5 @@
+/** @file */
+
 #include <emias/tools/cyrillic_unicode.hpp>
 #include <unordered_map>
 

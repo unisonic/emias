@@ -1,3 +1,5 @@
+/** @file */
+
 #include <tgbot/tgbot.h>
 
 #include <nlohmann/json.hpp>
