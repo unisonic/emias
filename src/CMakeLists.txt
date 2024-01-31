@@ -16,5 +16,7 @@ set(Boost_USE_STATIC_RUNTIME ON)
 find_package(Boost 1.84 REQUIRED)
 
 add_executable(${PROJECT_NAME} ${SRCS} ${HDRS})
-target_link_libraries(${PROJECT_NAME} PRIVATE TgBot PRIVATE cpr::cpr PRIVATE nlohmann_json::nlohmann_json PRIVATE Boost::boost)
 target_include_directories(${PROJECT_NAME} PRIVATE BEFORE ${CMAKE_SOURCE_DIR}/include)
+target_link_libraries(${PROJECT_NAME} PRIVATE TgBot PRIVATE cpr::cpr PRIVATE nlohmann_json::nlohmann_json PRIVATE Boost::boost)
+
+file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/full_state.json "{}")
