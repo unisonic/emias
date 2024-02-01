@@ -58,7 +58,7 @@ namespace {
 
         NEmias::GFullState[chatId][requestId] = std::move(NEmias::GChatState[chatId]);
         NEmias::GChatState.erase(chatId);
-        FileTools::write(NEmias::GFullState.dump(4), static_cast<const std::string&>(std::filesystem::current_path() / "full_state.json"));
+        FileTools::write(NEmias::GFullState.dump(4), (std::filesystem::current_path() / "full_state.json").c_str());
 
         ShowRequest(chatId, requestId);
     }
@@ -89,7 +89,7 @@ namespace {
     void DeleteRequest(TgBot::Message::Ptr message) {
         const std::string requestId = message->text.substr(message->text.find(' ') + 1);
         NEmias::GFullState[std::to_string(message->chat->id)].erase(requestId);
-        FileTools::write(NEmias::GFullState.dump(4), static_cast<const std::string&>(std::filesystem::current_path() / "full_state.json"));
+        FileTools::write(NEmias::GFullState.dump(4), (std::filesystem::current_path() / "full_state.json").c_str());
 
         NEmias::GMainBot.getApi().sendMessage(message->chat->id, "Удалён запрос " + requestId);
     }
@@ -100,7 +100,7 @@ namespace {
      */
     void DeleteFullState(TgBot::Message::Ptr message) {
         NEmias::GFullState.erase(std::to_string(message->chat->id));
-        FileTools::write(NEmias::GFullState.dump(4), static_cast<const std::string&>(std::filesystem::current_path() / "full_state.json"));
+        FileTools::write(NEmias::GFullState.dump(4), (std::filesystem::current_path() / "full_state.json").c_str());
 
         NEmias::GMainBot.getApi().sendMessage(message->chat->id, "Все запросы удалены");
     }
