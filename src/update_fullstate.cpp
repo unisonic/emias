@@ -18,5 +18,5 @@ void NEmias::UpdateFullState() {
         NEmias::GFullState.erase(chatId);
     }
 
-    FileTools::write(NEmias::GFullState.dump(4), std::filesystem::current_path() / "full_state.json");
+    FileTools::write(NEmias::GFullState.dump(4), static_cast<const std::string&>(std::filesystem::current_path() / "full_state.json"));
 }

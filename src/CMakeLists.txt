@@ -12,7 +12,6 @@ set(HDRS "${CMAKE_SOURCE_DIR}/include/emias/request.hpp"
          "${CMAKE_SOURCE_DIR}/include/emias/tools/timer.hpp"
          "${CMAKE_SOURCE_DIR}/include/emias/tools/cyrillic_unicode.hpp")
 
-set(Boost_USE_STATIC_RUNTIME ON)
 find_package(Boost 1.84 REQUIRED)
 
 add_executable(${PROJECT_NAME} ${SRCS} ${HDRS})

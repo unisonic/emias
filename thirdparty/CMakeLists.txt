@@ -1,8 +1,6 @@
 include(FetchContent)
 set(FETCHCONTENT_QUIET OFF)
 
-set(Boost_USE_STATIC_RUNTIME ON)
-
 FetchContent_Declare (
     tgbot 
     GIT_REPOSITORY https://github.com/unisonic/tgbot-cpp.git
