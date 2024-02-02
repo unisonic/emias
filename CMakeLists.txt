@@ -1,22 +1,15 @@
 cmake_minimum_required(VERSION 3.27.9)
+project(emias VERSION 1.0.0 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS NO)
 
-project(emias VERSION 1.0.0 LANGUAGES CXX)
-
-include(GNUInstallDirs)
-if (BUILD_SHARED_LIBS)
-    file(RELATIVE_PATH relDir1
-            ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}
-            ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR})
-    file(RELATIVE_PATH relDir2
-            ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}
-            ${CMAKE_INSTALL_PREFIX}/lib)
-    set(CMAKE_INSTALL_RPATH $ORIGIN $ORIGIN/${relDir1} $ORIGIN/${relDir2})
+if(WIN32)
+    add_definitions(-D_WIN32_WINNT=0x0A00)
 endif()
 
+include(GNUInstallDirs)
 add_subdirectory(thirdparty)
 add_subdirectory(src)
 
